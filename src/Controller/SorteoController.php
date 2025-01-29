@@ -11,70 +11,58 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/sorteo')]
+#[Route('/')]
 final class SorteoController extends AbstractController{
     #[Route(name: 'app_sorteo_index', methods: ['GET'])]
     public function index(SorteoRepository $sorteoRepository): Response
     {
         return $this->render('sorteo/index.html.twig', [
-            'sorteos' => $sorteoRepository->findAll(),
+            'sorteos' => $sorteoRepository->findLastSorteos(),
         ]);
     }
 
-    #[Route('/new', name: 'app_sorteo_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/comprobar', name: 'app_sorteo_comprobar', methods: ['GET'])]
+    public function comprobar(): Response
     {
-        $sorteo = new Sorteo();
-        $form = $this->createForm(SorteoType::class, $sorteo);
-        $form->handleRequest($request);
+        return $this->render('sorteo/comprobar.html.twig');
+    }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($sorteo);
-            $entityManager->flush();
+   
+    #[Route('/validar', name: 'app_sorteo_validar', methods: ['GET'])]
+    public function validar(SorteoRepository $sorteoRepository, Request $request, EntityManagerInterface $em): Response
+    {
+       
+        if ($request->isMethod('GET'))
+        {
+            $fechaStr = $request->query->get('fecha');
+            $numero = $request->query->get('numero');
+            $serie = $request->query->get('serie');
+            
+            
+            if (!empty($fechaStr) && !empty($numero) && !empty($serie))
+            {
+                $fecha = \DateTime::createFromFormat('Y-m-d', $fechaStr);
+                if (!$fecha) {
+                    throw new \Exception('Formato de fecha incorrecto');
+                }
+                $sorteo = $sorteoRepository->findNumero($fecha, $numero, $serie);
+                
+                
+                return $this->render('sorteo/resultado.html.twig', [
+                    'sorteo' => $sorteo
+                ]);
 
-            return $this->redirectToRoute('app_sorteo_index', [], Response::HTTP_SEE_OTHER);
+            }
+        
+            else
+            {
+                $this->addFlash('warning', 'Error en los datos.');
+            }
         }
 
-        return $this->render('sorteo/new.html.twig', [
-            'sorteo' => $sorteo,
-            'form' => $form,
+        return $this->render('sorteo/index.html.twig', [
+            'sorteos' => $sorteoRepository->findLastSorteos(),
         ]);
     }
-
-    #[Route('/{id}', name: 'app_sorteo_show', methods: ['GET'])]
-    public function show(Sorteo $sorteo): Response
-    {
-        return $this->render('sorteo/show.html.twig', [
-            'sorteo' => $sorteo,
-        ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_sorteo_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Sorteo $sorteo, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(SorteoType::class, $sorteo);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_sorteo_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('sorteo/edit.html.twig', [
-            'sorteo' => $sorteo,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_sorteo_delete', methods: ['POST'])]
-    public function delete(Request $request, Sorteo $sorteo, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$sorteo->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($sorteo);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_sorteo_index', [], Response::HTTP_SEE_OTHER);
-    }
+   
 }

@@ -3,39 +3,31 @@
 {% block title %}Sorteo index{% endblock %}
 
 {% block body %}
-    <h1>Sorteo index</h1>
+    <h1>Listado ultimos sorteo:</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Fecha</th>
-                <th>Numero</th>
-                <th>Serie</th>
-                <th>Premio</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for sorteo in sorteos %}
-            <tr>
-                <td>{{ sorteo.id }}</td>
-                <td>{{ sorteo.fecha ? sorteo.fecha|date('Y-m-d') : '' }}</td>
-                <td>{{ sorteo.numero }}</td>
-                <td>{{ sorteo.serie }}</td>
-                <td>{{ sorteo.premio }}</td>
-                <td>
-                    <a href="{{ path('app_sorteo_show', {'id': sorteo.id}) }}">show</a>
-                    <a href="{{ path('app_sorteo_edit', {'id': sorteo.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_sorteo_new') }}">Create new</a>
+    <div class="container d-flex justify-content-center">
+        <table class="table text-center w-50">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Premio</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for sorteo in sorteos %}
+                <tr>
+                    <td>{{ sorteo.fecha ? sorteo.fecha|date('l d F Y') : '' }}</td>
+                    <td>{{ sorteo.Premio }}€</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">Sin resultados</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="container d-flex justify-content-center">
+        <a class="btn btn-secondary" href="{{ path('app_sorteo_comprobar')}}">Comprobar</a>
+    </div>
 {% endblock %}

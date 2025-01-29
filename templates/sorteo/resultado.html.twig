@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validar Sorteo{% endblock %}
+
+{% block body %}
+   
+    {% if sorteo is not empty %}
+    <h1 class="text-center" style="font-weight: bold; color: green;">¡Enhorabuena! El número ha sido premiado:</h1>
+    <br>
+    <h2 class="text-center">Resultado del Sorteo</h2>
+    <div class="container d-flex justify-content-center w-50">
+        <table class="table text-center align-middle w-50">
+            <tr>
+                <td>Fecha:</td>
+                <td>{{ sorteo[0].fecha|date('d-m-Y')}}</td>
+            </tr>
+            <tr>
+                <td>Número:</td>
+                <td>{{ sorteo[0].numero }}</td>
+            </tr>
+            <tr>
+                <td>Serie:</td>
+                <td> {{ sorteo[0].serie }}</td>
+            </tr>
+            <tr>
+                <td>Premio:</p></td>
+                <td style="font-size: 35px; font-weight: bold; color: green;">{{ sorteo[0].premio }}€</td>
+            </tr>
+        </table>
+    </div>
+    {% else %}
+        <h2 class="text-center">Lo siento. El número no ha sido premiado.</h2>
+    {% endif %}
+    </div>
+
+{% endblock %}
